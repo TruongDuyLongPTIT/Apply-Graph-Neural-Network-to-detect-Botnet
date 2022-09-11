@@ -16,6 +16,7 @@ https://distill.pub/2021/understanding-gnns/
 Automating botnet detection with graph neural networks (https://arxiv.org/pdf/2003.06344.pdf)
 https://nn.labml.ai/graphs/gat/index.html 
 https://www.dgl.ai/
+https://github.com/hitlic/bijou
 // Self code
 https://github.com/AnchoretY/botnet-detection/blob/main/GNN%E5%83%B5%E5%B0%B8%E7%BD%91%E7%BB%9C%E6%A3%80%E6%B5%8B.ipynb
 https://docs.google.com/spreadsheets/d/1id_WJAsGz0hJ3-flGj3-ygJaiwrAlAQ3gh2VT-2Krhs/edit?usp=drivesdk
