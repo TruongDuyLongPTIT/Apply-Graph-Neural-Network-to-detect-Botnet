@@ -17,9 +17,11 @@ Automating botnet detection with graph neural networks (https://arxiv.org/pdf/20
 https://nn.labml.ai/graphs/gat/index.html 
 https://www.dgl.ai/
 https://github.com/hitlic/bijou
-// Self code
+// Code
 https://github.com/AnchoretY/botnet-detection/blob/main/GNN%E5%83%B5%E5%B0%B8%E7%BD%91%E7%BB%9C%E6%A3%80%E6%B5%8B.ipynb
 https://docs.google.com/spreadsheets/d/1id_WJAsGz0hJ3-flGj3-ygJaiwrAlAQ3gh2VT-2Krhs/edit?usp=drivesdk
+https://github.com/dmlc/dgl/tree/master/examples/pytorch
+
 // Extra
 https://untitledtblog.tistory.com/152
 https://didi-universe.tistory.com/entry/GNN-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-2-Spatial-Convolutional-Network
