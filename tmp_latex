@@ -1,0 +1,83 @@
+
+\chapter{Hướng tiếp cận và mô hình đề xuất}
+\section{Hướng tiếp cận}
+Graph neural network đã được chứng minh là hoạt động hiệu quả trên dữ liệu dạng đồ thị. Do đó, hướng tiếp cận dùng GNN để phát hiện Botnet là khả thi bởi chúng ta có thể dễ dàng mô hình hóa  botnet dưới dạng đồ thị. Ví dụ:
+    
+\begin{center}
+    \begin{figure}[h!]
+    \begin{center}
+    \includegraphics[scale=0.5]{img/Botnet_to_Graph.png} 
+    \end{center}
+    \caption{Trái: Mạng Botnet ban đầu \cite{tensor} - Phải: Mạng Botnet được biểu diễn dưới dạng đồ thị }
+    \end{figure}
+\end{center}
+
+Sau khi đã đồ thị hóa Botnet, chúng ta cần phải xác định được bài toán chúng ta đang muốn giải quyết thuộc vào dạng nào trong 3 dạng dưới đây:
+\begin{itemize}
+    \item Phân loại nút (Xem xét xem 1 nút cụ thể có phải là Bot hay không)
+    \item Dự đoán cạnh/liên kết (Dự đoán xem giữa 2 nút có tồn tại 1 cạnh liên kết chúng với nhau hay không)
+    \item Phân loại đồ thị (Dựa trên các đặc trưng đưa ra dự đoán đồ thị có phải là Botnet hay không)
+\end{itemize}
+
+Bởi vì mục đích là xác định các botnode. Nên hướng tiếp cận của bài toán sẽ là Phân loại các nút trong đồ thị.
+
+%\subsection{ResNet}
+%\subsection{Inception}
+\section{Mô hình đề xuất}
+Theo định hướng, mô hình  Graph Convolution Network sẽ được sử dụng để thực hiện phân loại các nút trong đồ thị. Mô hình này gồm 12 convolution layer. Kiến trúc mô hình được thể hiện trực quan bằng hình vẽ dưới đây:
+
+\begin{center}
+    \begin{figure}[h!]
+    \begin{center}
+    \includegraphics[scale=0.25]{img/Model_architecture.png}
+    \end{center}
+    \caption{Kiến trúc mô hình GCN được sử dụng để phân loại nút }
+    \end{figure}
+\end{center}
+Nhắc lại các thuật ngữ/ký hiệu:
+
+\begin{itemize}
+    \item $\mathcal{V} = \left\{v_1, \ldots, v_n\right\}$ là danh sách gồm n node của đồ thị.
+    
+    \item $A=\left\{\begin{array}{l}
+a_{i j}=1 \text { nếu giữa $\mathbf{node}_{i}$ và $\mathbf{node}_{j}$ có tồn tại liên kết} \\
+a_{i j}=0 \text { nếu ngược lại }
+\end{array}\right.  \in \mathbb{R}^{n \times n}$ là ma trận kề.
+    
+    \item $D=\operatorname{diag}\left(d_1, \ldots, d_n\right)$ với $d_i=\sum_{j=1}^n a_{i j}$ là ma trận bậc của đồ thị.  $D^{-1}$ là ma trận nghịch đảo của D.
+    
+    \item $X^{(L)} = ( \mathbf{x}_{1}^{(L)}, \mathbf{x}_{2}^{(L)},..., \mathbf{x}_{n}^{(L)}) \in \mathbb{R}^{n \times h}$ là ma trận chứa đặc trưng của các node trong đồ thị sau L layers. Ví dụ: $\mathbf{x}_{n}^{(L)} = ( \mathbf{a}_{1}, \mathbf{a}_{2},..., \mathbf{a}_{h})$ là vector đặc trưng của $\mathbf{node}_{n}$ sau L layers.
+\end{itemize}
+Kiến trúc mô hình nêu trên có thể được chia thành 3 phần chính:
+
+\begin{itemize}
+    \item Input: Dữ liệu đầu vào là ma trận đặc trưng $X^{(0)}=1 \in \mathbb{R}^{n \times 1}$ ( n là số lượng node, 1 là kích thước vector đặc trưng của mỗi nút). Trong ma trận này tất cả các giá trị đều là 1, lý do là bởi vì, mục đích của các lớp Convolution là chỉ tập trung vào học kiến trúc topology thuần túy của đồ thị, do đó, đặc trưng của các node là không cần thiết. Vậy thì tại sao đặt đặc trưng của các node là 1 lại khiến cho các lớp Convolution tích lũy được thông tin về cấu trúc topo của đồ thị?
+    
+    \item 12 Convolution Layer:\\
+    Mỗi Conv Layer đều thực hiện tuần tự các bước sau:
+        \begin{itemize}
+            \item Bước 1: Thực hiện chuẩn hóa theo kiểu random walk bằng cách thực hiện phép tính: $\bar{A}=D^{-1} A$. Ở đây, các tác giả của bài báo gốc đã không sử dụng công thức chuẩn hóa thông thường là $\bar{A}=D^{-1 / 2} A D^{-1 / 2}$ bởi vì họ nhận định rằng, bài toán này chỉ cần quan tâm đến bậc của các node kề là đủ. Do đó, họ áp dụng chuẩn hóa random walk trong trường hợp này là hợp lý.
+            
+            \item Bước 2: Thực hiện tích lũy thông tin cho node tại layer L bằng cách thực hiện phép tính: $\bar{A} X^{(L-1)}$.
+            
+            \item Bước 3: Sau đó, ta nhân $\bar{A} X^{(L-1)}$ với ma trận weight $W^{(L)}$. Bản chất khi thực hiện phép nhận với ma trận weight chính là ta đã thực hiện 1 phép biển đổi tuyến tính trên không gian vector. Giá trị của ma trận weight này sẽ được cập nhật trong quá trình đào tạo (bằng cách sử dụng thuật toán Gradient Descent để tối ưu minimum hàm loss, và cơ chế Backpropagation để cập nhật weight).
+            
+            \item Bước 4: Đưa ma trận kết quả từ phép tính ở bước 3 đi qua hàm ReLU: $\sigma(x)=\max (0, x)$ => $\sigma\left(\bar{A} X^{(L-1)} W^{(L)}\right)$. Thông thường, đến bước này là ta đã hoàn thành xong công việc của 1 Conv Layer. Tuy nhiên, đối với bài toán nhận diện Botnet này, các nhà nghiên cứu dựa vào thực nghiệm đã đưa ra nhận định rằng mỗi nút trong đồ thị cần phải tích lũy được thông tin của các nút trong phạm vi 12 bước nhảy. Do đó, mô hình GCN của chúng ta cần 12 Conv Layer. Mặc dù vậy, GCN đã được chứng minh là sẽ bị giảm hiệu suất nghiêm trọng nếu mô hình có nhiều hơn 7 Conv Layer. Do đó, ta cần phải thực hiện thêm các kết nối dư (Residual connection) như ở bước 5 để khắc phục tình trạng này.
+            \begin{center}
+                \begin{figure}[h!]
+                \begin{center}
+                \includegraphics[scale=0.5]{img/Residual_connection.png}
+                \end{center}
+                \caption{Biểu đồ biểu diễn sự hiệu quả của Residual connection đối với các mô hình GNN có nhiều hơn 7 Layer.}
+                \end{figure}
+            \end{center}
+            
+            \item Bước 5: Để thêm kết nối dư cho mạng GCN chúng ta chỉ cần cộng biểu thức ban đầu với biểu thức $X^{(L-1)} U^{(L)}$ => Ta được biểu thức: $X^{(L-1)} U^{(L)} + \sigma\left(\bar{A} X^{(L-1)} W^{(L)}\right)$ với $U^{(L)}$ là ma trân tương tự như như ma trận weight $W$, tức là giá trị của $U$ sẽ được cập nhật trong quá trình đào tạo. (Kết nối dư được mô tả trực quan trong hình 4.2)
+            
+            \item Bước 6: Đưa kết quả phép toán ở bước thứ 5 đi qua hàm ReLU. Ta thu được ma trận $X^{(L)}$ là ma trận đặc trưng của các nút sau L layer. \\Công thức cụ thể như sau: $X^{(L)} = \sigma\left(X^{(L-1)} U^{(L)} + \sigma\left(\bar{A} X^{(L-1)} W^{(L)}\right)\right)$
+        
+			\item Về cơ bản, các Conv Layer hoạt động giống nhau, duy chỉ có 1 điểm khác nhau là, ở Layer 1, ma trận đầu vào có kích thước là [Nx1], còn từ Layer 2 trở đi, ma trận đầu vào của các Conv layer đều có kích thước là [Nx32]. Điều này cũng kéo theo ma trận $W^{(1)}$ có kích thước là [1x32], còn các ma trận $W^{2->12}$ có kích thước là [32, 32] (bởi vì kích thước của ma trận weight luôn phải là [input channel, output channel]).
+        \end{itemize}
+    
+    \item Ouput: Sau khi ma trận đặc trưng $X^{(0)}$ đi qua 12 Conv Layer, ta thu được ma trận $X^{(12)}$ có kích thước là [N, 32]. Sau đó, ma trân $X^{(12)}$ sẽ được đưa vào làm input cho Linear Layer. Lớp Linear này sẽ thực hiện một phép biến đối tuyến tính biến ma trận kích thước [N, 32] thành ma trận kích thước [N, 2]. Cuối cùng ma trận [N, 2] này sẽ được đưa vào hàm Softmax để phân loại từng nút.
+\end{itemize}
