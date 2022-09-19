@@ -34,14 +34,14 @@ Theo định hướng, mô hình  Graph Convolution Network sẽ được sử d
     \caption{Kiến trúc mô hình GCN được sử dụng để phân loại nút }
     \end{figure}
 \end{center}
-Nhắc lại các thuật ngữ/ký hiệu:
+Quy ước các thuật ngữ/ký hiệu:
 
 \begin{itemize}
     \item $\mathcal{V} = \left\{v_1, \ldots, v_n\right\}$ là danh sách gồm n node của đồ thị.
     
     \item $A=\left\{\begin{array}{l}
-a_{i j}=1 \text { nếu giữa $\mathbf{node}_{i}$ và $\mathbf{node}_{j}$ có tồn tại liên kết} \\
-a_{i j}=0 \text { nếu ngược lại }
+a_{i j}=1 \text { nếu $\mathbf{node}_{i}$ liên kết với $\mathbf{node}_{j}$. } \\
+a_{i j}=0 \text { nếu ngược lại. }
 \end{array}\right.  \in \mathbb{R}^{n \times n}$ là ma trận kề.
     
     \item $D=\operatorname{diag}\left(d_1, \ldots, d_n\right)$ với $d_i=\sum_{j=1}^n a_{i j}$ là ma trận bậc của đồ thị.  $D^{-1}$ là ma trận nghịch đảo của D.
